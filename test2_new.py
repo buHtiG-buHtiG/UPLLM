@@ -1,5 +1,5 @@
 import sys
-sys.path.append("/home/gsy/RecGPT/src")
+sys.path.append("/home/authorname/RecGPT/src")
 
 from logging import getLogger, FileHandler
 from recbole.config import Config
@@ -25,7 +25,7 @@ import wandb
 from best_params import *
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = "1"
-os.environ['WANDB_API_KEY'] = '85978ff2b285559fe8b12d59a1df5abfc53bd130'
+os.environ['WANDB_API_KEY'] = 'Your key'
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 # os.environ['WANDB_MODE'] = 'offline'
 
@@ -1726,7 +1726,7 @@ def quickload(dataset_type, config_dict):
 
 def rename():
     for i in range(6, 66, 6):
-        path = "/liuzyai04/thuir/guoshiyuan/gsy/ml-25m/user_5k/recbole/user_5k/user_5k_total_ml-25m_3_64_{}".format(i)
+        path = "/authorlab/authorlab/authorname/authorname/ml-25m/user_5k/recbole/user_5k/user_5k_total_ml-25m_3_64_{}".format(i)
         for file in os.listdir(path):
             prefix = file.split(".", maxsplit=1)[0]
             suffix = file.split(prefix)[-1]
@@ -1738,9 +1738,9 @@ def rename():
 def direct_dot(dataset_type):
     if dataset_type == "amazon-CDs_and_Vinyl":
         path = "./amazon/user_5k/CDs_and_Vinyl/recbole/user_5k/user_5k_total_amazon_5_48_full"
-        with open("/liuzyai04/thuir/guoshiyuan/gsy/Embeddings/amazon/CDs_and_Vinyl/user_totalembed.pkl", "rb") as f:
+        with open("/authorlab/authorlab/authorname/authorname/Embeddings/amazon/CDs_and_Vinyl/user_totalembed.pkl", "rb") as f:
             oriembed_list = pickle.load(f)
-        with open("/liuzyai04/thuir/guoshiyuan/gsy/amazon/user_5k/CDs_and_Vinyl/u.user", "r") as f:
+        with open("/authorlab/authorlab/authorname/authorname/amazon/user_5k/CDs_and_Vinyl/u.user", "r") as f:
             lines = f.read().splitlines()
         userid_list = []
         for i in range(len(lines)):
@@ -1750,9 +1750,9 @@ def direct_dot(dataset_type):
         user_oriembed_dict = {x[0]:x[1] for x in zipped}
     else:
         path = "./ml-25m/user_5k/recbole/user_5k/user_5k_total_ml-25m_5_64_full"
-        with open("/liuzyai04/thuir/guoshiyuan/gsy/Embeddings/ml-25m/user_totalembed.pkl", "rb") as f:
+        with open("/authorlab/authorlab/authorname/authorname/Embeddings/ml-25m/user_totalembed.pkl", "rb") as f:
             oriembed_list = pickle.load(f)
-        with open("/liuzyai04/thuir/guoshiyuan/gsy/ml-25m/user_5k/u.user", "r") as f:
+        with open("/authorlab/authorlab/authorname/authorname/ml-25m/user_5k/u.user", "r") as f:
             lines = f.read().splitlines()
         userid_list = []
         for i in range(len(lines)):
@@ -1841,7 +1841,7 @@ def direct_dot(dataset_type):
     sys.exit(1)
 
 def norm_embed():
-    file = "/liuzyai04/thuir/guoshiyuan/gsy/amazon/user_5k/CDs_and_Vinyl/recbole/user_5k/user_5k_total_amazon_5_48_full/user_5k_total_amazon_5_48_full.itememb"
+    file = "/authorlab/authorlab/authorname/authorname/amazon/user_5k/CDs_and_Vinyl/recbole/user_5k/user_5k_total_amazon_5_48_full/user_5k_total_amazon_5_48_full.itememb"
     with open(file, "r") as f:
         lines = f.read().splitlines()
     with open("{}_new".format(file), "w") as f:
@@ -1862,10 +1862,10 @@ def norm_embed():
 
 def regenerate_dataset(dataset_type):
     if dataset_type == "ml-25m":
-        path = "/liuzyai04/thuir/guoshiyuan/gsy/ml-25m/user_5k/recbole/user_5k"
+        path = "/authorlab/authorlab/authorname/authorname/ml-25m/user_5k/recbole/user_5k"
         folder_list = ["user_5k_total"]
     elif dataset_type == "amazon-CDs_and_Vinyl":
-        path = "/liuzyai04/thuir/guoshiyuan/gsy/amazon/user_5k/CDs_and_Vinyl/recbole/user_5k"
+        path = "/authorlab/authorlab/authorname/authorname/amazon/user_5k/CDs_and_Vinyl/recbole/user_5k"
         folder_list = ["user_5k_total"]
     for folder in folder_list:
         with open("{}/{}/{}.train.inter".format(path, folder, folder), "r", encoding="latin-1") as f:
@@ -1909,7 +1909,7 @@ def regenerate_dataset(dataset_type):
 
 def process_train_full(folder_path):
     print("Saving top item infomation...")
-    path = "/liuzyai04/thuir/guoshiyuan/gsy/ml-25m/user_5k/recbole/user_5k/{}".format(dataset_choices)
+    path = "/authorlab/authorlab/authorname/authorname/ml-25m/user_5k/recbole/user_5k/{}".format(dataset_choices)
     with open("{}/train_full.pkl".format(folder_path), "rb") as f:
         total_train_scoredict = pickle.load(f)
     
@@ -1948,7 +1948,7 @@ def process_train_full(folder_path):
                 pbar.update()
 
 # def test():
-#     with open("/liuzyai04/thuir/guoshiyuan/gsy/amazon/user_5k/CDs_and_Vinyl/recbole/user_5k/user_5k_total/user_5k_total.train_full.inter", "r") as f:
+#     with open("/authorlab/authorlab/authorname/authorname/amazon/user_5k/CDs_and_Vinyl/recbole/user_5k/user_5k_total/user_5k_total.train_full.inter", "r") as f:
 #         lines = f.read().splitlines()
 #     print(len(lines))
 #     sys.exit(1)
@@ -2013,7 +2013,7 @@ if __name__ == "__main__":
     # dataset_choice = ['user_5k_total_ml-25m_3_16', 'user_5k_total_ml-25m_3_48', 'user_5k_total_ml-25m_3_64', 'user_5k_total_ml-25m_5_16', 'user_5k_total_ml-25m_5_40', 'user_5k_total_ml-25m_5_48', 'user_5k_total_ml-25m_5_64']
     
         for dataset_choices in dataset_choice:
-            # folder_path = "/liuzyai04/thuir/guoshiyuan/gsy/log/FM/FM-user_5k_total-Oct-27-2024_18-27-43-383080"
+            # folder_path = "/authorlab/authorlab/authorname/authorname/log/FM/FM-user_5k_total-Oct-27-2024_18-27-43-383080"
             # process_train_full(folder_path)
             # sys.exit(1)
             # for model_name in ['LightGCN', 'FM', 'SimGCL']:

@@ -128,7 +128,7 @@ def create(dataset):
     save_split_data("test", user_test_dict)
 
 def check():
-    # with open("/liuzyai04/thuir/guoshiyuan/gsy/amazon_new/user_5k/CDs_and_Vinyl/u_valid.data", "r") as f:
+    # with open("/authorlab/authorlab/authorname/authorname/amazon_new/user_5k/CDs_and_Vinyl/u_valid.data", "r") as f:
     #     lines = f.read().splitlines()
     # print(lines[:100], len(lines))
     pbar = tqdm(total=100)

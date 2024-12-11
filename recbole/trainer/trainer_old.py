@@ -677,7 +677,7 @@ class Trainer(AbstractTrainer):
             model_file (str, optional): the saved model file, default: None. If users want to test the previously
                                         trained model file, they can set this parameter.
             show_progress (bool): Show the progress of evaluate epoch. Defaults to ``False``.
-            filename (str): This parameter is added by Guo Shiyuan, to control the generation of the score matrix of valid and test dataset.
+            filename (str): This parameter is added by Author Name, to control the generation of the score matrix of valid and test dataset.
 
         Returns:
             collections.OrderedDict: eval result, key is the eval metric and value in the corresponding metric value.

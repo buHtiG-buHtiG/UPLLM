@@ -74,26 +74,21 @@ class Agent:
     def set_model(self):
         if self.llm_model == "ChatGPT":
             self.generate = self.generate_chatgpt
-            # 1676551678817714264
-            openai.api_key = "1754062163406495751"
-            openai.api_base = "https://aigc.sankuai.com/v1/openai/native"
-            # openai.api_key = "sk-BVg26twobulCXORWBa048eBf62924e61826218F74bE71314"
-            # openai.api_base = "https://svip.xty.app/v1"
+            openai.api_key = "Your key"
+            openai.api_base = "Your base"
         elif self.llm_model == "gpt-4":
             self.generate = self.generate_gpt4
-            openai.api_key = "sk-BVg26twobulCXORWBa048eBf62924e61826218F74bE71314"
-            openai.api_base = "https://svip.xty.app/v1"
-            # openai.api_key = "1754062163406495751"
-            # openai.api_base = "https://aigc.sankuai.com/v1/openai/native"
+            openai.api_key = "Your key"
+            openai.api_base = "Your base"
         elif self.llm_model == "llama3":
             self.generate = self.generate_llama3
             # self.client = ollama.Client(host="http://127.0.0.1:11434")
-            openai.api_key = "1754062163406495751"
-            openai.api_base = "https://aigc.sankuai.com/v1/openai/native"
+            openai.api_key = "Your key"
+            openai.api_base = "Your base"
         
     
     def judge_relevance(self, embed1, embed2):
-        threshold = 1.0
+        threshold = 0.98
         cos_sim = 1 - spatial.distance.cosine(embed1, embed2)
         if cos_sim >= threshold:
             return False
@@ -149,9 +144,9 @@ def get_generate(instruction=None, input=[{"role": "user", "content": "hello?"}]
         
 #     with open("./condense_profile.pkl", "wb") as f:
 #         pickle.dump(finalinput, f)
-#     connect_obj.upload_file("./condense_profile.pkl", "/home/gsy/RecGPT/llama3-main/condense_profile.pkl")
-#     connect_obj.execute("/home/gsy/anaconda3/bin/python /home/gsy/RecGPT/llama3-main/connect_llama3.py")
-#     connect_obj.download_file("/home/gsy/RecGPT/llama3-main/condensed_profile.pkl", "./condensed_profile.pkl")
+#     connect_obj.upload_file("./condense_profile.pkl", "/home/authorname/RecGPT/llama3-main/condense_profile.pkl")
+#     connect_obj.execute("/home/authorname/anaconda3/bin/python /home/authorname/RecGPT/llama3-main/connect_llama3.py")
+#     connect_obj.download_file("/home/authorname/RecGPT/llama3-main/condensed_profile.pkl", "./condensed_profile.pkl")
 #     with open("./condensed_profile.pkl", "rb") as f:
 #         output = pickle.load(f)
 #     return output['result'][0]['generation']['content']
@@ -215,9 +210,9 @@ def get_num_tokens(messages, model="gpt-4-turbo-2024-04-09"):
 class ConnectSSH:
     def __init__(self):
         jumpbox_host_ip = "101.6.41.59"
-        jump_user = "guoshiyuan"
+        jump_user = "authorname"
         jump_port = 11517
-        target_user = "gsy"
+        target_user = "authorname"
         ssh_key_filename = os.getenv('HOME') + '/.ssh/id_rsa'
         target_host_ip = "192.168.56.26"
         
@@ -290,13 +285,13 @@ def connect_ssh():
     
     with open("./condense_profile.pkl", "wb") as f:
         pickle.dump(condense_prompt, f)
-    connect_obj.upload_file("./condense_profile.pkl", "/home/gsy/RecGPT/llama3-main/condense_profile.pkl")
+    connect_obj.upload_file("./condense_profile.pkl", "/home/authorname/RecGPT/llama3-main/condense_profile.pkl")
     
-    output = connect_obj.execute("/home/gsy/anaconda3/bin/python /home/gsy/RecGPT/llama3-main/connect_llama3.py")
+    output = connect_obj.execute("/home/authorname/anaconda3/bin/python /home/authorname/RecGPT/llama3-main/connect_llama3.py")
     real_output = output['result'][0]['generation']['content']
     print(output)
     print(real_output)
-    # connect_obj.download_file("/home/gsy/RecGPT/src/llama_output.txt", "/Users/guoshiyuan03/Downloads/RecGPT/src/llama_output.txt")
+    # connect_obj.download_file("/home/authorname/RecGPT/src/llama_output.txt", "/Users/authorname03/Downloads/RecGPT/src/llama_output.txt")
 
 class History:
     def __init__(self):
@@ -445,9 +440,9 @@ class User(Agent):
         
     #     with open("./condense_profile.pkl", "wb") as f:
     #         pickle.dump(self.conflict_prefix, f)
-    #     connect_obj.upload_file("./condense_profile.pkl", "/home/gsy/RecGPT/llama3-main/condense_profile.pkl")
-    #     connect_obj.execute("/home/gsy/anaconda3/bin/python /home/gsy/RecGPT/llama3-main/connect_llama3.py")
-    #     connect_obj.download_file("/home/gsy/RecGPT/llama3-main/condensed_profile.pkl", "./condensed_profile.pkl")
+    #     connect_obj.upload_file("./condense_profile.pkl", "/home/authorname/RecGPT/llama3-main/condense_profile.pkl")
+    #     connect_obj.execute("/home/authorname/anaconda3/bin/python /home/authorname/RecGPT/llama3-main/connect_llama3.py")
+    #     connect_obj.download_file("/home/authorname/RecGPT/llama3-main/condensed_profile.pkl", "./condensed_profile.pkl")
     #     with open("./condensed_profile.pkl", "rb") as f:
     #         output = pickle.load(f)
     #     output = output['result'][0]['generation']['content']
@@ -1162,8 +1157,8 @@ def get_bpref2(zipped_list):
 #     return ndcg_score, mrr_score, bpref_score
 
 def llm_evaluate(dataset):
-    openai.api_key = "1754062163406495751"
-    openai.api_base = "https://aigc.sankuai.com/v1/openai/native"
+    openai.api_key = "Your key"
+    openai.api_base = "Your base"
     mode = "score_ranking" # direct_ranking / score_ranking
     
     embed_dir2 = "./logs/2024-01-18_13:47:01/checkpoints"
@@ -1385,7 +1380,7 @@ def condense_description_process(count, group_size, itemid_list, iteminfo_dict, 
     #     print(seed)
 
 def condense_adjust(iteminfo_dict, old_lines):
-    path = "/home/gsy/RecGPT/src/amazon/user_5k/CDs_and_Vinyl"
+    path = "/home/authorname/RecGPT/src/amazon/user_5k/CDs_and_Vinyl"
     name2des = {}
     for i in range(20):
         with open("{}/history/condense_{}.jsonl".format(path, i), "r") as f:
@@ -1418,8 +1413,8 @@ def condense_adjust(iteminfo_dict, old_lines):
 
 def condense_desciption():
     data_path = "./amazon/user_5k/CDs_and_Vinyl"
-    # openai.api_key = "1754062163406495751"
-    # openai.api_base = "https://aigc.sankuai.com/v1/openai/native"
+    # openai.api_key = "Your key"
+    # openai.api_base = "Your base"
     
     # history = History.create_eval(file_name="{}/condense.jsonl".format(data_path)) # self.history.append({"Profile": self.profile})
     with open("{}/u.item_new2".format(data_path), "r", encoding="latin-1") as f:
@@ -1539,8 +1534,8 @@ def condense_desciption():
 
 def verify_description(): # adjust the time to 2 seconds.
     data_path = "./amazon/user_200_3/CDs_and_Vinyl"
-    openai.api_key = "1754062163406495751"
-    openai.api_base = "https://aigc.sankuai.com/v1/openai/native"
+    openai.api_key = "Your key"
+    openai.api_base = "Your base"
     
     with open("{}/u.item".format(data_path), "r") as f:
         lines = f.read().splitlines()
@@ -2159,8 +2154,8 @@ def merge_folders():
                         f.write("\n")
                 pbar.update()
     
-    folder1 = "/liuzyai04/thuir/guoshiyuan/gsy/ml-25m_results/raw_results/ml-25m_5_32_newprompt/merged_13"
-    folder2 = "/liuzyai04/thuir/guoshiyuan/gsy/ml-25m_results/raw_results/ml-25m_5_32_newprompt/merged_2"
+    folder1 = "/liuzyai04/authorlab/authorname/authorname/ml-25m_results/raw_results/ml-25m_5_32_newprompt/merged_13"
+    folder2 = "/liuzyai04/authorlab/authorname/authorname/ml-25m_results/raw_results/ml-25m_5_32_newprompt/merged_2"
     merged_folder = "{}/merged".format(folder1.rsplit("/", maxsplit=1)[0])
     print(merged_folder)
     # merged_folder = "./history_length_results/merged"
@@ -2213,7 +2208,7 @@ def check_condense():
     """
 
 def count_complete_usernum():
-    path = "/liuzyai04/thuir/guoshiyuan/gsy/logs/2024-09-21_18:11:29/checkpoints"
+    path = "/liuzyai04/authorlab/authorname/authorname/logs/2024-09-21_18:11:29/checkpoints"
     users = {}
     for file in os.listdir(path):
         if file.endswith("final_profile.pkl"):
@@ -2223,7 +2218,7 @@ def count_complete_usernum():
     sys.exit(1)
 
 def check_groups_pkl():
-    with open("/liuzyai04/thuir/guoshiyuan/gsy/amazon-CDs_and_Vinyl.pkl", "rb") as f:
+    with open("/liuzyai04/authorlab/authorname/authorname/amazon-CDs_and_Vinyl.pkl", "rb") as f:
         groups = pickle.load(f)
     for i in range(len(groups)):
         print(len(groups[i]))
@@ -2247,7 +2242,7 @@ if __name__== "__main__":
     # llm='LLaMA-13B'
     # manual_evaluate("amazon-CDs_and_Vinyl")
     
-    # with open("/Users/guoshiyuan03/Downloads/RecGPT/src/logs/2024-05-13_17:20:15/checkpoints/user_2_final_totalembed2.pkl", "rb") as f:
+    # with open("/Users/authorname03/Downloads/RecGPT/src/logs/2024-05-13_17:20:15/checkpoints/user_2_final_totalembed2.pkl", "rb") as f:
     #     embed = pickle.load(f)
     # print(len(embed), embed[0])
     # sys.exit(1)
@@ -2279,7 +2274,7 @@ if __name__== "__main__":
     
     # port start with 11434
     # if llm is 'llama3': Please run "OLLAMA_NUM_PARALLEL=20 OLLAMA_HOST=127.0.0.1:11441 CUDA_VISIBLE_DEVICES=7 nohup ./ollama-linux-amd64 serve" in the terminal first.
-    # if login as other users: OLLAMA_MODELS=/liuzyai04/thuir/guoshiyuan/.ollama/models OLLAMA_NUM_PARALLEL=20 OLLAMA_HOST=127.0.0.1:11441 CUDA_VISIBLE_DEVICES=7 nohup ./ollama-linux-amd64 serve
+    # if login as other users: OLLAMA_MODELS=/liuzyai04/authorlab/authorname/.ollama/models OLLAMA_NUM_PARALLEL=20 OLLAMA_HOST=127.0.0.1:11441 CUDA_VISIBLE_DEVICES=7 nohup ./ollama-linux-amd64 serve
     # for llm in ['llama3']:
     for batch_size in batchsize_list:
         for profile_max_length in length_list:

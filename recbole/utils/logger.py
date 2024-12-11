@@ -116,4 +116,4 @@ def init_logger(config):
     sh.setFormatter(sformatter)
 
     # logging.basicConfig(level=level, handlers=[sh, fh])
-    logging.basicConfig(level=level, handlers=[sh, fh], force=True) # Edited by Guo Shiyuan, to ensure that each model's result is outputted into each model's file.
+    logging.basicConfig(level=level, handlers=[sh, fh], force=True) # Edited by Author Name, to ensure that each model's result is outputted into each model's file.

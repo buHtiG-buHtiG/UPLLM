@@ -84,7 +84,7 @@ class EmbLoss(nn.Module):
         else:
             # time1 = time.time()
             # emb_loss = torch.zeros(1).to(embeddings[-1].device)
-            emb_loss = [] # edited by Guo Shiyuan, TOO SLOW!!!!!!
+            emb_loss = [] # edited by Author Name, TOO SLOW!!!!!!
             # time2 = time.time()
             # print("Establish: {}".format(time2 - time1))
             for embedding in embeddings:

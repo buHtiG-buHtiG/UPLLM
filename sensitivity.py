@@ -155,8 +155,8 @@ def cal_special_sensitivity():
     with open("{}/sensitivity.log".format(path), "w") as f:
         pass
     
-    file1 = "/liuzyai04/thuir/guoshiyuan/gsy/history_length_results/group 5/NeuMF/NeuMF-user_5k_total_ml-25m_10-Sep-12-2024_08-03-17-ebd6cf.log"
-    file2 = "/liuzyai04/thuir/guoshiyuan/gsy/history_length_results/group 5/NeuMF/NeuMF-user_5k_total_ml-25m_5-Sep-12-2024_06-33-24-35ce22.log"
+    file1 = "/authorlab/authorlab/authorname/authorname/history_length_results/group 5/NeuMF/NeuMF-user_5k_total_ml-25m_10-Sep-12-2024_08-03-17-ebd6cf.log"
+    file2 = "/authorlab/authorlab/authorname/authorname/history_length_results/group 5/NeuMF/NeuMF-user_5k_total_ml-25m_5-Sep-12-2024_06-33-24-35ce22.log"
     cal_ttest(file1, file2)
 
 def cal_sensitivity():
@@ -1128,8 +1128,8 @@ def merge_logs():
     
     info_prefix = "Sun 19 May 2024 01:23:15 INFO  "
     
-    file1 = "/liuzyai04/thuir/guoshiyuan/gsy/group 5/XSimGCL/old/XSimGCL-amazon-5.log"
-    # file2 = "/home/gsy/RecGPT/src/deepest_res/WideDeep-ml100k-clcos_real-2022-2029.log"
+    file1 = "/authorlab/authorlab/authorname/authorname/group 5/XSimGCL/old/XSimGCL-amazon-5.log"
+    # file2 = "/home/authorname/RecGPT/src/deepest_res/WideDeep-ml100k-clcos_real-2022-2029.log"
     file2 = None
     result_list1 = processing_logs(file1)
     result_list2 = processing_logs(file2)
@@ -1269,15 +1269,15 @@ def compare_condense():
     plt.savefig("./img3/condense_ablation_bpref.png")
 
 def test():
-    path = "/liuzyai04/thuir/guoshiyuan/gsy/full_results/FM-cos_3_64-ml25m/ndcg.pkl"
+    path = "/authorlab/authorlab/authorname/authorname/full_results/FM-cos_3_64-ml25m/ndcg.pkl"
     with open(path, "rb") as f:
         temp_dict = pickle.load(f)
     print(temp_dict[5].keys())
     sys.exit(1)
 
 def pointwise_sensitivity():
-    path1 = "/liuzyai04/thuir/guoshiyuan/gsy/log/FM/FM-user_5k_total_amazon_1-Sep-24-2024_09-28-45-4fb58f"
-    path2 = "/liuzyai04/thuir/guoshiyuan/gsy/log/FM/FM-user_5k_total_amazon_1-Sep-28-2024_07-47-12-728700"
+    path1 = "/authorlab/authorlab/authorname/authorname/log/FM/FM-user_5k_total_amazon_1-Sep-24-2024_09-28-45-4fb58f"
+    path2 = "/authorlab/authorlab/authorname/authorname/log/FM/FM-user_5k_total_amazon_1-Sep-28-2024_07-47-12-728700"
     with open("{}/ndcg.pkl".format(path1), "rb") as f:
         ndcg1 = pickle.load(f)
     with open("{}/ndcg.pkl".format(path2), "rb") as f:
@@ -1309,7 +1309,7 @@ def pointwise_sensitivity():
             f.write("\n")
 
 def find_best():
-    path = "/liuzyai04/thuir/guoshiyuan/gsy/full_results/temp.log"
+    path = "/authorlab/authorlab/authorname/authorname/full_results/temp.log"
     with open(path, "r") as f:
         lines = f.read().splitlines()
     best_ndcg, seed, best_param_dict = 0.0, 0, None
@@ -1344,7 +1344,7 @@ def find_best():
         f.write("{}  With parameters: {}\n".format(cur_time, best_param_dict))
 
 def calculate_average():
-    path = "/liuzyai04/thuir/guoshiyuan/gsy/full_results/FM-cos_5_64-ml25m.log"
+    path = "/authorlab/authorlab/authorname/authorname/full_results/FM-cos_5_64-ml25m.log"
     with open(path, "r") as f:
         lines = f.read().splitlines()
     results = [{} for _ in range(6)]

@@ -40,7 +40,7 @@ def xavier_normal_initialization_linearonly(module):
 
     Examples:
         >>> self.apply(xavier_normal_initialization)
-    This function is edited by Guo Shiyuan.
+    This function is edited by Author Name.
     """
     if isinstance(module, nn.Linear):
         xavier_normal_(module.weight.data)
@@ -75,7 +75,7 @@ def xavier_uniform_initialization_linearonly(module):
 
     Examples:
         >>> self.apply(xavier_uniform_initialization)
-    This function is edited by Guo Shiyuan.
+    This function is edited by Author Name.
     """
     if isinstance(module, nn.Linear):
         xavier_uniform_(module.weight.data)

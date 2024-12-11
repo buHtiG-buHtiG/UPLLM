@@ -7,12 +7,12 @@ import time
 
 def load_totalembed(dataset):
     if dataset == "ml-25m":
-        embedpath = "/liuzyai04/thuir/guoshiyuan/gsy/Embeddings/ml-25m"
-        datapath = "/liuzyai04/thuir/guoshiyuan/gsy/ml-25m/user_5k/recbole/user_5k/"
+        embedpath = "/authorlab/authorlab/authorname/authorname/Embeddings/ml-25m"
+        datapath = "/authorlab/authorlab/authorname/authorname/ml-25m/user_5k/recbole/user_5k/"
         folder = "user_5k_total_ml-25m_5_32_full"
     elif dataset == "amazon-CDs_and_Vinyl":
-        embedpath = "/liuzyai04/thuir/guoshiyuan/gsy/Embeddings/amazon/CDs_and_Vinyl"
-        datapath = "/liuzyai04/thuir/guoshiyuan/gsy/amazon/user_5k/CDs_and_Vinyl/recbole/user_5k/"
+        embedpath = "/authorlab/authorlab/authorname/authorname/Embeddings/amazon/CDs_and_Vinyl"
+        datapath = "/authorlab/authorlab/authorname/authorname/amazon/user_5k/CDs_and_Vinyl/recbole/user_5k/"
         folder = "user_5k_total_amazon_5_32_full"
     with open("{}/user_totalembed.pkl".format(embedpath), "rb") as f:
         totalembed = pickle.load(f)
@@ -44,11 +44,11 @@ def load_totalembed(dataset):
 
 def generate_BGE_user_embed(dataset):
     if dataset == "ml-25m":
-        # path = "/liuzyai04/thuir/guoshiyuan/gsy/ml-25m_results/ml-25m_3_64_full/checkpoints"
-        path = "/liuzyai04/thuir/guoshiyuan/gsy/ml-25m_results/ml-25m_5_32_full/checkpoints"
+        # path = "/authorlab/authorlab/authorname/authorname/ml-25m_results/ml-25m_3_64_full/checkpoints"
+        path = "/authorlab/authorlab/authorname/authorname/ml-25m_results/ml-25m_5_32_full/checkpoints"
     elif dataset == "amazon-CDs_and_Vinyl":
-        # path = "/liuzyai04/thuir/guoshiyuan/gsy/amazon_results/amazon_5_48_full/checkpoints"
-        path = "/liuzyai04/thuir/guoshiyuan/gsy/amazon_results/amazon_5_32_full/checkpoints"
+        # path = "/authorlab/authorlab/authorname/authorname/amazon_results/amazon_5_48_full/checkpoints"
+        path = "/authorlab/authorlab/authorname/authorname/amazon_results/amazon_5_32_full/checkpoints"
     user_id_list, sentence_list = [], []
     
     with tqdm(total=5000, desc="Loading user profiles...") as pbar:
@@ -70,7 +70,7 @@ def generate_BGE_user_embed(dataset):
                 sentence_list.append(sentence)
                 pbar.update()
     
-    model = BGEM3FlagModel('/liuzyai04/thuir/guoshiyuan/BGE', use_fp16=True)
+    model = BGEM3FlagModel('/authorlab/authorlab/authorname/BGE', use_fp16=True)
     embedding_list = model.encode(sentence_list, batch_size=12, max_length=8192)['dense_vecs']
     print(embedding_list.shape)
     with tqdm(total=len(embedding_list), desc="Saving embeddings...") as pbar:
@@ -86,13 +86,13 @@ def generate_BGE_user_embed(dataset):
 
 def generate_BGE_item_embed(dataset):
     if dataset == "ml-25m":
-        # path = "/liuzyai04/thuir/guoshiyuan/gsy/ml-25m_results/ml-25m_3_64_full/checkpoints"
-        path = "/liuzyai04/thuir/guoshiyuan/gsy/ml-25m_results/ml-25m_5_32_full/checkpoints"
-        item_path = "/liuzyai04/thuir/guoshiyuan/gsy/ml-25m/user_5k/u.item"
+        # path = "/authorlab/authorlab/authorname/authorname/ml-25m_results/ml-25m_3_64_full/checkpoints"
+        path = "/authorlab/authorlab/authorname/authorname/ml-25m_results/ml-25m_5_32_full/checkpoints"
+        item_path = "/authorlab/authorlab/authorname/authorname/ml-25m/user_5k/u.item"
     elif dataset == "amazon-CDs_and_Vinyl":
-        # path = "/liuzyai04/thuir/guoshiyuan/gsy/amazon_results/amazon_5_48_full/checkpoints"
-        path = "/liuzyai04/thuir/guoshiyuan/gsy/amazon_results/amazon_5_32_full/checkpoints"
-        item_path = "/liuzyai04/thuir/guoshiyuan/gsy/amazon/user_5k/CDs_and_Vinyl/u.item"
+        # path = "/authorlab/authorlab/authorname/authorname/amazon_results/amazon_5_48_full/checkpoints"
+        path = "/authorlab/authorlab/authorname/authorname/amazon_results/amazon_5_32_full/checkpoints"
+        item_path = "/authorlab/authorlab/authorname/authorname/amazon/user_5k/CDs_and_Vinyl/u.item"
     item_id_list, sentence_list = [], []
     with open(item_path, "r") as f:
         lines = f.read().splitlines()
@@ -104,7 +104,7 @@ def generate_BGE_item_embed(dataset):
             sentence_list.append(sentence)
             pbar.update()
     
-    model = BGEM3FlagModel('/liuzyai04/thuir/guoshiyuan/BGE', use_fp16=True)
+    model = BGEM3FlagModel('/authorlab/authorlab/authorname/BGE', use_fp16=True)
     embedding_list = model.encode(sentence_list, batch_size=12, max_length=8192)['dense_vecs']
     print(embedding_list.shape)
     with tqdm(total=len(embedding_list), desc="Saving embeddings...") as pbar:
@@ -120,13 +120,13 @@ def generate_BGE_item_embed(dataset):
 
 def generate_BGE_recbole(dataset):
     if dataset == "ml-25m":
-        path = "/liuzyai04/thuir/guoshiyuan/gsy/ml-25m/user_5k/recbole/user_5k/user_5k_total_baseprofile"
+        path = "/authorlab/authorlab/authorname/authorname/ml-25m/user_5k/recbole/user_5k/user_5k_total_baseprofile"
         new_folder = "user_5k_total_JINA_ori"
-        new_path = "/liuzyai04/thuir/guoshiyuan/gsy/ml-25m/user_5k/recbole/user_5k/{}".format(new_folder)
+        new_path = "/authorlab/authorlab/authorname/authorname/ml-25m/user_5k/recbole/user_5k/{}".format(new_folder)
     elif dataset == "amazon-CDs_and_Vinyl":
-        path = "/liuzyai04/thuir/guoshiyuan/gsy/amazon/user_5k/CDs_and_Vinyl/recbole/user_5k/user_5k_total_baseprofile"
+        path = "/authorlab/authorlab/authorname/authorname/amazon/user_5k/CDs_and_Vinyl/recbole/user_5k/user_5k_total_baseprofile"
         new_folder = "user_5k_total_JINA_new"
-        new_path = "/liuzyai04/thuir/guoshiyuan/gsy/amazon/user_5k/CDs_and_Vinyl/recbole/user_5k/{}".format(new_folder)
+        new_path = "/authorlab/authorlab/authorname/authorname/amazon/user_5k/CDs_and_Vinyl/recbole/user_5k/{}".format(new_folder)
     if not os.path.exists(new_path):
         os.mkdir(new_path)
     for postfix in ["user", "item", "train.inter", "valid.inter", "test.inter"]:
@@ -136,18 +136,18 @@ def generate_BGE_recbole(dataset):
         )
 
 def test():
-    path = "/liuzyai04/thuir/guoshiyuan/gsy/ml-25m_results/ml-25m_3_64_full/checkpoints/user_1.0_final_profile.pkl"
+    path = "/authorlab/authorlab/authorname/authorname/ml-25m_results/ml-25m_3_64_full/checkpoints/user_1.0_final_profile.pkl"
     with open(path, "rb") as f:
         temp = pickle.load(f)
     print(temp)
 
 def saving_user_totalprofiles(dataset):
     if dataset == "ml-25m":
-        # path = "/liuzyai04/thuir/guoshiyuan/gsy/ml-25m_results/ml-25m_3_64_full/checkpoints"
-        path = "/liuzyai04/thuir/guoshiyuan/gsy/ml-25m_results/ml-25m_5_32_full/checkpoints"
+        # path = "/authorlab/authorlab/authorname/authorname/ml-25m_results/ml-25m_3_64_full/checkpoints"
+        path = "/authorlab/authorlab/authorname/authorname/ml-25m_results/ml-25m_5_32_full/checkpoints"
     elif dataset == "amazon-CDs_and_Vinyl":
-        # path = "/liuzyai04/thuir/guoshiyuan/gsy/amazon_results/amazon_5_48_full/checkpoints"
-        path = "/liuzyai04/thuir/guoshiyuan/gsy/amazon_results/amazon_5_32_full/checkpoints"
+        # path = "/authorlab/authorlab/authorname/authorname/amazon_results/amazon_5_48_full/checkpoints"
+        path = "/authorlab/authorlab/authorname/authorname/amazon_results/amazon_5_32_full/checkpoints"
     
     user_id_list, sentence_list = [], []
     with tqdm(total=5000, desc="Loading user profiles...") as pbar:
@@ -184,7 +184,7 @@ if __name__ == "__main__":
 
 # curl https://api.jina.ai/v1/embeddings \
 #   -H "Content-Type: application/json" \
-#   -H "Authorization: Bearer jina_a5947e28e2ec490c87b9896c28fc1204zQLTee-NSX8e2Id1BVJoXB2l0ImH" \
+#   -H "Authorization: Bearer [Your jina API key]" \
 #   -d @- <<EOFEOF
 #   {
 #     "model": "jina-embeddings-v3",
