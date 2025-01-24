@@ -1,6 +1,6 @@
-# UP4LLM
+# UPLLM
 
-Below are the datasets and Python source codes of our framework, UP4LLM.
+Below are the datasets and Python source codes of our framework, UPLLM.
 
 Descriptions of this repo will be edited later. By now, we just want to show that our work is solid, repeatable and credible.
 
