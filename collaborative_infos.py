@@ -1270,28 +1270,6 @@ def get_potential_profile_demo(dataset):
                 continue
     sys.exit(1)
 
-def clean_description():
-    with open("./ml-25m/u.item_new_desc3", "r") as f:
-        lines = f.read().splitlines()
-    # with open("./ml-25m/u.item_new_desc3", "w") as f:
-    white_list = [9982, 11351, 12570, 12630, 16440, 19602, 19716, 26369, 26475, 28922, 28953, 42259, 44515, 53523,
-                53595, 54055, 56664, 64029, 65142, 69232, 78888, 78937, 79493, 91869, 109167, 110280, 113984,
-                115502, 116183, 121899, 123362, 126822, 127143, 127512, 143658, 144171, 144188, 146228, 146921,
-                156945, 157565, 162381, 182465, 188250, 207401, 210991, 210990, 210992, 210993, 210994, 210995,
-                210996, 210997, 210998, 211264]
-    with tqdm(total=len(lines)) as pbar:
-        for i in range(len(lines)):
-            prev, cur_description = lines[i].rsplit("|", maxsplit=1)
-            # if "`" in cur_description and i not in white_list:
-            #     f.write("{}|\n".format(prev))
-            # else:
-            #     f.write("{}\n".format(lines[i]))
-            if "~" in cur_description:
-                print(i, cur_description)
-                time.sleep(0.3)
-                # pbar.update()
-    sys.exit(1)
-
 def condense_desciption():
     condense_threshold = 512
     with open("./ml-25m/u.item_new_desc2", "r") as f:
