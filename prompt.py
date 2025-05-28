@@ -68,7 +68,7 @@ For a specific scenario, an example on movie recommendation would be:
 # {"role": "system", "content": "You are a helpful assistant on movie recommendation. "},
 {"role": "user", "content": """Now I will give you:
 1. The Original Profile of a user, describing the user's current preferences and dislikes;
-2. An item list, consisting of one item or several items interacted by the user. The given items in the item list are arranged in chronological order, from recent to far, and the items given to you this round is interacted earlier than the items in the last round. Each item includes a profile containing the item's name, category and some descriptions, and the rating of the item scored by the user. Rating less or equal than 3.0 is considered as a negative attitude towards the item.
+2. An item list, consisting of one item or several items interacted by the user. The given items in the item list are arranged in chronological order, from recent to far, and the items given to you this round is interacted earlier than the items in the last round. In the item list, each item includes a profile containing the item's name, category and some descriptions, and the rating of the item scored by the user. Rating less or equal than 3.0 is considered as a negative attitude towards the item.
 Now you are considering to generate New User Profile of the user, based on Original User Profile, Item Profiles and Ratings in the item list.
 To do this, please follow the steps below:
 1. Review the given Original User Profile and Item Profiles, remember the profile terms that already exist. You should AVOID generating such terms repeatedly.
@@ -111,31 +111,161 @@ No matter how you can fully understand the item list, your output should strictl
 """},
 {"role": "assistant", "content": "Sure, I will generate the user's new profile after I see the rating and the items' attribute according to the requirements. "}
 ],
-            [
-{"role": "user", "content": """Please generate New User Profile based on:
-(1) The Original Profile of a user, describing the user's current preferences and dislikes;
-(2) An item list, consisting of several items interacted by the user. The items are arranged in chronological order, from recent to far, the items given to you this round is earlier than the items given before. Each item includes a profile containing the item's name, category and some descriptions, and the rating of the item scored by the user.
-You should complete the generation following these steps:
-1. Review the terms in given Original User Profile and Item Profiles, as well as the ratings, analyze the combinations of them, considering any patterns of preferences and dislikes.
+            
+[
+# {"role": "system", "content": "You are a helpful assistant on movie recommendation. "},
+{"role": "user", "content": """Now I will give you:
+1. The Original Profile of a user, describing the user's current preferences and dislikes;
+2. An item list, consisting of one item or several items interacted by the user. The given items in the item list are arranged in chronological order, from recent to far, and the items given to you this round is interacted earlier than the items in the last round.
+In the item list, each item includes a profile containing the item's name, category and some descriptions, the rating of the item scored by the user, and the collaborative score derived from the collaborative filtering infomation between users and items. Rating less or equal than 3.5 is considered as a negative attitude towards the item. The collaborative score range is [-1.0, 1.0], which is comparable between items, higher score indicates more fondness on this item, vice versa.
+Now you are considering to generate New User Profile of the user, based on the item list.
+To do this, please follow the steps below:
+1. Review the given Original User Profile and Item Profiles, remember the profile terms that already exist. You should AVOID generating such terms repeatedly.
 2. Extract the currently derived preferences and dislikes of the user from the user's Original Profile.
-3. Deduce the user's interactive intent within each combination, give a Thought according to the analyses of user's preferences and dislikes, based on the given profiles and ratings. Specifically, find out the relationship between the low/high ratings and the features in Item Profiles, and extract the common features that the user likes/dislikes. Also, determine the most representative intents (current user preference/dislikes) from the inferred ones.
-4. Generate the New User Profile based on the selected intents and the information derived in the Thought.
+3. Compare the ratings and collaborative scores between the items, as they reflect the relative fondness of the items by the user. Higher rating and score means that the user likes this item and its genres more than others, vice versa. You should try your best to differentiate and reflect the degrees of preferences of the user with different types of items in the New User Profile.
+4. Give a Thought according to user's original preferences and dislikes, item profiles, the user's ratings and the collaborative scores, containing the above extractions and comparations, try to explain what main features make the user give the items low/high ratings, and result in these collaborative scores. Specially, you should find out the relationship between the ratings, scores and the features in Item Profiles, and extract the common and specific features between the given items that the user likes/dislikes. You MUST examine the item list comprehensively, not omitting any item. The Thought MUST NOT contain information not related to the current asked items, and MUST NOT have unfounded assumptions about the items. 
+5. Generate the New User Profile based on the information derived in the Thought. The New User Profile should ONLY contain newly inferred features, AVOID generating features that you already know about the user.
 
 Important note:
 1. Your output should in the format:
-Thought: Plain text
-New User Profile: [List of terms], MUST in Python List format, each term string reflects one user preference, and should be wrapped with quotation marks. Terms are seperated by comma. The quotation marks inside the term should use the escape character to avoid mismatch.
-2. In order to ensure the comprehensiveness of the new user profile, the number of generated terms MUST be at least the number of items given to you (e.g. 5 terms for 5 items). You MUST examine the item list comprehensively, not omitting any item.
-3. Each term should explicitly retain all emotional phrases (e.g. like/dislike). It is FORBIDDEN to directly use the name of genres to represent user's preferences.
-4. You may make speculations about what features in the Item Profiles make the user like/dislike the given items, or examine how Original User Profile can align with the given Item Profiles. You are encouraged to use other knowledge inside your memory about the items, if you are sure it is accurate. You are FORBIDDEN to make unfounded assumptions about the given items, and fabricate anything that cannot be inferred from the input.
-5. You should ONLY generate newly inferred features, be specific and personalized, highlighting detailed and distinguishable feature of the user.
-6. If you are not completely sure about the preference of the user, you may use phrases like "may like", "like to some extent" or "moderately like" when describing a user's mid-level fondness of a genre.
-7. When rating of an item is lower than or equal to 3.0, you MUST consider that the user does not like this item. Otherwise, when rating is above than or equal to 3.5, it is a high score, showing that the user likes this item.
+Thought: Plain text.
+New User Profile: [list of terms], MUST in Python List format, each term string should be wrapped with quotation marks, and seperated by comma. Be aware that when there is any quotation mark inside the term, please use escape character to avoid the mismatch of quotation marks.
+2. You should pay more attention to the given Item Profiles first, try to make speculations about what features in the Item Profiles make the user like/dislike the given items. You may also use the Original User Profile as a reference, to find out how the terms in the Original User Profile can align with the given Item Profiles. Making unfounded assumptions about the given items, or using terms in the Original User Profile as the complement of the item's profile are STRICTLY PROHIBITED. You are welcomed to use other knowledge inside your memory about the items, if you are really sure it is correct and accurate.
+3. Your output should ONLY contain newly inferred features, and be specific and personalized, not too general, highlighting detailed and distinguishable feature of the user. DO NOT fabricate anything that cannot be inferred from input.
+4. You may use some adverbs to describe a user when you are not completely sure about the preference of a user. For example, you may use phrases like "may like", "like to some extent" or "moderately like" when describing a user's mid-level fondness of a genre.
+5. In order to ensure the comprehensiveness of the generated new user profile, the number of generated terms MUST be at least the length of the item list, e.g. if you are given 5 items, your generated New User Profile MUST contain at least 5 terms. You need to fully examine the given features of the items.
+6. When rating of an item is lower or equal than 3.5, you MUST consider it as a LOW score, showing that the user do not like this item. When rating is higher or equal than 4.0, it is a high score, showing that the user like this item.
 
 For a specific scenario, an example on movie recommendation would be:
 """},
+# {"role": "user", "content": """Above is the item list given to you. Please be aware that you are given a task of generating New User Profile of the user, based on Original User Profile, Item Profiles Ratings and Collaborative Scores in the item list. The given items in the item list are arranged in chronological order, from recent to far, and the items given to you this round is interacted earlier than the items in the last round.
+# You MUST strictly follow the task instructions and give the output in correct format. You are FORBIDDEN to give freestyled recommendations and description summarizations, because they are NOT YOUR TASK.
+# Now we emphasize the instructions of the task to you again:
+# To do this, please follow the steps below:
+# 1. Review the given Original User Profile and Item Profiles, remember the profile terms that already exist. You should AVOID generating such terms repeatedly.
+# 2. Extract the currently derived preferences and dislikes of the user from the user's Original Profile.
+# 3. Compare the ratings and collaborative scores between the items, as they reflect the relative fondness of the items by the user. Higher rating and score means that the user likes this item and its genres more than others, vice versa. You should try your best to differentiate and reflect the degrees of preferences of the user with different types of items in the New User Profile.
+# 4. Give a Thought according to user's original preferences and dislikes, item profiles, the user's ratings and the collaborative scores, containing the above extractions and comparations, try to explain what main features make the user give the items low/high ratings, and result in these collaborative scores. Specially, you should find out the relationship between the ratings, scores and the features in Item Profiles, and extract the common and specific features between the given items that the user likes/dislikes. You MUST examine the item list comprehensively, not omitting any item. The Thought MUST NOT contain information not related to the current asked items, and MUST NOT have unfounded assumptions about the items. 
+# 5. Generate the New User Profile based on the information derived in the Thought. The New User Profile should ONLY contain newly inferred features, AVOID generating features that you already know about the user.
+
+# Important note:
+# 1. Your output should in the format:
+# Thought: Plain text.
+# New User Profile: [list of terms], MUST in Python List format, each term string should be wrapped with quotation marks, and seperated by comma. Be aware that when there is any quotation mark inside the term, please use escape character to avoid the mismatch of quotation marks.
+# 2. You should pay more attention to the given Item Profiles first, try to make speculations about what features in the Item Profiles make the user like/dislike the given items. You may also use the Original User Profile as a reference, to find out how the terms in the Original User Profile can align with the given Item Profiles. Making unfounded assumptions about the given items, or using terms in the Original User Profile as the complement of the item's profile are STRICTLY PROHIBITED. You are welcomed to use other knowledge inside your memory about the items, if you are really sure it is correct and accurate.
+# 3. Your output should ONLY contain newly inferred features, and be specific and personalized, not too general, highlighting detailed and distinguishable feature of the user. DO NOT fabricate anything that cannot be inferred from input.
+# 4. You may use some adverbs to describe a user when you are not completely sure about the preference of a user. For example, you may use phrases like "may like", "like to some extent" or "moderately like" when describing a user's mid-level fondness of a genre.
+# 5. In order to ensure the comprehensiveness of the generated new user profile, the number of generated terms MUST be at least the length of the item list, e.g. if you are given 5 items, your generated New User Profile MUST contain at least 5 terms. You need to fully examine the given features of the items.
+# 6. When rating of an item is lower or equal than 3.0, you MUST consider it as a LOW score, showing that the user do not like this item. When rating is higher or equal than 3.5, it is a high score, showing that the user like this item.
+
+# No matter how you can fully understand the item list, your output should strictly follow the given format. Otherwise you will be punished.
+# """},
+{"role": "user", "content": """Above is the item list given to you. Please be aware that you are given a task of generating New User Profile of the user, based on Original User Profile, Item Profiles Ratings and Collaborative Scores in the item list.
+You MUST strictly follow the task instructions and give the output in correct format. You are FORBIDDEN to give freestyled recommendations and description summarizations, because they are NOT YOUR TASK.
+Your output should in the format:
+Thought: Plain text.
+New User Profile: [list of terms], MUST in Python List format, each term string should be wrapped with quotation marks, and seperated by comma. Be aware that when there is any quotation mark inside the term, please use escape character to avoid the mismatch of quotation marks.
+No matter how you can fully understand the item list, your output should strictly follow the given format. Otherwise you will be punished.
+"""},
 {"role": "assistant", "content": "Sure, I will generate the user's new profile after I see the rating and the items' attribute according to the requirements. "}
 ],
+
+[
+{"role": "user", "content": """Now I will give you:
+1. The Original Profile of a user, describing the user's current preferences and dislikes;
+2. An item list, consisting of one item or several items interacted by the user. The given items in the item list are arranged in chronological order, from recent to far, and the items given to you this round is interacted earlier than the items in the last round.
+In the item list, each item includes a profile containing the item's name, category and some descriptions, the rating of the item scored by the user, and the collaborative hedonic scale derived from the collaborative filtering infomation between users and items. Rating less or equal than 3.5 is considered as a negative attitude towards the item. The collaborative hedonic scale is comparable between items, indicating the fondness level of each item.
+Now you are considering to generate New User Profile of the user, based on the item list.
+To do this, please follow the steps below:
+1. Review the given Original User Profile and Item Profiles, remember the profile terms that already exist. You should AVOID generating such terms repeatedly.
+2. Extract the currently derived preferences and dislikes of the user from the user's Original Profile.
+3. Compare the ratings and collaborative hedonic scales between the items, as they reflect the relative fondness of the items by the user. Higher rating and score means that the user likes this item and its genres more than others, vice versa. You should try your best to differentiate and reflect the degrees of preferences of the user with different types of items in the New User Profile.
+4. Give a Thought according to user's original preferences and dislikes, item profiles, the user's ratings and the collaborative hedonic scales, containing the above extractions and comparations, try to explain what main features make the user give the items low/high ratings, and result in these collaborative hedonic scales. Specially, you should find out the relationship between the ratings, scores and the features in Item Profiles, and extract the common and specific features between the given items that the user likes/dislikes. You MUST examine the item list comprehensively, not omitting any item. The Thought MUST NOT contain information not related to the current asked items, and MUST NOT have unfounded assumptions about the items. 
+5. Generate the New User Profile based on the information derived in the Thought. The New User Profile should ONLY contain newly inferred features, AVOID generating features that you already know about the user.
+
+Important note:
+1. Your output should in the format:
+Thought: Plain text.
+New User Profile: [list of terms], MUST in Python List format, each term string should be wrapped with quotation marks, and seperated by comma. Be aware that when there is any quotation mark inside the term, please use escape character to avoid the mismatch of quotation marks.
+2. You should pay more attention to the given Item Profiles first, try to make speculations about what features in the Item Profiles make the user like/dislike the given items. You may also use the Original User Profile as a reference, to find out how the terms in the Original User Profile can align with the given Item Profiles. Making unfounded assumptions about the given items, or using terms in the Original User Profile as the complement of the item's profile are STRICTLY PROHIBITED. You are welcomed to use other knowledge inside your memory about the items, if you are really sure it is correct and accurate.
+3. Your output should ONLY contain newly inferred features, and be specific and personalized, not too general, highlighting detailed and distinguishable feature of the user. DO NOT fabricate anything that cannot be inferred from input.
+4. You may use some adverbs to describe a user when you are not completely sure about the preference of a user. For example, you may use phrases like "may like", "like to some extent" or "moderately like" when describing a user's mid-level fondness of a genre.
+5. In order to ensure the comprehensiveness of the generated new user profile, the number of generated terms MUST be at least the length of the item list, e.g. if you are given 5 items, your generated New User Profile MUST contain at least 5 terms. You need to fully examine the given features of the items.
+6. When rating of an item is lower or equal than 3.5, you MUST consider it as a LOW score, showing that the user do not like this item. When rating is higher or equal than 4.0, it is a high score, showing that the user like this item.
+
+For a specific scenario, an example on movie recommendation would be:
+"""},
+{"role": "user", "content": """Above is the item list given to you. Please be aware that you are given a task of generating New User Profile of the user, based on Original User Profile, Item Profiles Ratings and Collaborative Hedonic Scales in the item list.
+You MUST strictly follow the task instructions and give the output in correct format. You are FORBIDDEN to give freestyled recommendations and description summarizations, because they are NOT YOUR TASK.
+Your output should in the format:
+Thought: Plain text.
+New User Profile: [list of terms], MUST in Python List format, each term string should be wrapped with quotation marks, and seperated by comma. Be aware that when there is any quotation mark inside the term, please use escape character to avoid the mismatch of quotation marks.
+No matter how you can fully understand the item list, your output should strictly follow the given format. Otherwise you will be punished.
+"""},
+{"role": "assistant", "content": "Sure, I will generate the user's new profile after I see the rating and the items' attribute according to the requirements. "}
+],
+
+[
+{"role": "user", "content": """Now I will give you:
+1. The Original Profile of a user, describing the user's current preferences and dislikes;
+2. An item list, consisting of one item or several items interacted by the user. The given items in the item list are arranged in chronological order, from recent to far, and the items given to you this round is interacted earlier than the items in the last round.
+In the item list, each item includes a profile containing the item's name, category and some descriptions, and the rating of the item scored by the user. Rating less or equal than 3.5 is considered as a negative attitude towards the item.
+Now you are considering to generate New User Profile of the user, based on the item list.
+To do this, please follow the steps below:
+1. Review the given Original User Profile and Item Profiles, remember the profile terms that already exist. You should AVOID generating such terms repeatedly.
+2. Extract the currently derived preferences and dislikes of the user from the user's Original Profile.
+3. Compare the ratings between the items, as they reflect the relative fondness of the items by the user. Higher rating means that the user likes this item and its genres more than others, vice versa. You should try your best to differentiate and reflect the degrees of preferences of the user with different types of items in the New User Profile.
+4. Give a Thought according to user's original preferences and dislikes, item profiles and the user's ratings, containing the above extractions and comparations, try to explain what main features make the user give the items low/high ratings. Specially, you should find out the relationship between the ratings and the features in Item Profiles, and extract the common and specific features between the given items that the user likes/dislikes. You MUST examine the item list comprehensively, not omitting any item. The Thought MUST NOT contain information not related to the current asked items, and MUST NOT have unfounded assumptions about the items. 
+5. Generate the New User Profile based on the information derived in the Thought. The New User Profile should ONLY contain newly inferred features, AVOID generating features that you already know about the user.
+
+Important note:
+1. Your output should in the format:
+Thought: Plain text.
+New User Profile: [list of terms], MUST in Python List format, each term string should be wrapped with quotation marks, and seperated by comma. Be aware that when there is any quotation mark inside the term, please use escape character to avoid the mismatch of quotation marks.
+2. You are FORBIDDEN to directly use genres' names to represent user's preferences!!!
+3. You should pay more attention to the given Item Profiles first, try to make speculations about what features in the Item Profiles make the user like/dislike the given items. You may also use the Original User Profile as a reference, to find out how the terms in the Original User Profile can align with the given Item Profiles. Making unfounded assumptions about the given items, or using terms in the Original User Profile as the complement of the item's profile are STRICTLY PROHIBITED. You are welcomed to use other knowledge inside your memory about the items, if you are really sure it is correct and accurate.
+4. Your output should ONLY contain newly inferred features, and be specific and personalized, not too general, highlighting detailed and distinguishable feature of the user. DO NOT fabricate anything that cannot be inferred from input.
+5. You may use some adverbs to describe a user when you are not completely sure about the preference of a user. For example, you may use phrases like "may like", "like to some extent" or "moderately like" when describing a user's mid-level fondness of a genre.
+6. In order to ensure the comprehensiveness of the generated new user profile, the number of generated terms MUST be at least the length of the item list, e.g. if you are given 5 items, your generated New User Profile MUST contain at least 5 terms. You need to fully examine the given features of the items.
+6. When rating of an item is lower or equal than 3.5, you MUST consider it as a LOW score, showing that the user do not like this item. When rating is higher or equal than 4.0, it is a high score, showing that the user like this item.
+
+For a specific scenario, an example on movie recommendation would be:
+"""},
+{"role": "user", "content": """To summarize, please be aware that you are given a task of generating New User Profile of the user, based on Original User Profile, Item Profiles and Ratings in the item list.
+You MUST strictly follow the task instructions and give the output in correct format. You are FORBIDDEN to give freestyled recommendations and description summarizations, because they are NOT YOUR TASK.
+Your output should in the format:
+Thought: Plain text.
+New User Profile: [list of terms], MUST in Python List format, each term string should be wrapped with quotation marks, and seperated by comma. Be aware that when there is any quotation mark inside the term, please use escape character to avoid the mismatch of quotation marks.
+No matter how you can fully understand the item list, your output should strictly follow the given format. Otherwise you will be punished.
+"""},
+{"role": "assistant", "content": "Sure, I will generate the user's new profile after I see the rating and the items' attribute according to the requirements. "}
+],
+#             [
+# {"role": "user", "content": """Please generate New User Profile based on:
+# (1) The Original Profile of a user, describing the user's current preferences and dislikes;
+# (2) An item list, consisting of several items interacted by the user. The items are arranged in chronological order, from recent to far, the items given to you this round is earlier than the items given before. Each item includes a profile containing the item's name, category and some descriptions, and the rating of the item scored by the user.
+# You should complete the generation following these steps:
+# 1. Review the terms in given Original User Profile and Item Profiles, as well as the ratings, analyze the combinations of them, considering any patterns of preferences and dislikes.
+# 2. Extract the currently derived preferences and dislikes of the user from the user's Original Profile.
+# 3. Deduce the user's interactive intent within each combination, give a Thought according to the analyses of user's preferences and dislikes, based on the given profiles and ratings. Specifically, find out the relationship between the low/high ratings and the features in Item Profiles, and extract the common features that the user likes/dislikes. Also, determine the most representative intents (current user preference/dislikes) from the inferred ones.
+# 4. Generate the New User Profile based on the selected intents and the information derived in the Thought.
+
+# Important note:
+# 1. Your output should in the format:
+# Thought: Plain text
+# New User Profile: [List of terms], MUST in Python List format, each term string reflects one user preference, and should be wrapped with quotation marks. Terms are seperated by comma. The quotation marks inside the term should use the escape character to avoid mismatch.
+# 2. In order to ensure the comprehensiveness of the new user profile, the number of generated terms MUST be at least the number of items given to you (e.g. 5 terms for 5 items). You MUST examine the item list comprehensively, not omitting any item.
+# 3. Each term should explicitly retain all emotional phrases (e.g. like/dislike). It is FORBIDDEN to directly use the name of genres to represent user's preferences.
+# 4. You may make speculations about what features in the Item Profiles make the user like/dislike the given items, or examine how Original User Profile can align with the given Item Profiles. You are encouraged to use other knowledge inside your memory about the items, if you are sure it is accurate. You are FORBIDDEN to make unfounded assumptions about the given items, and fabricate anything that cannot be inferred from the input.
+# 5. You should ONLY generate newly inferred features, be specific and personalized, highlighting detailed and distinguishable feature of the user.
+# 6. If you are not completely sure about the preference of the user, you may use phrases like "may like", "like to some extent" or "moderately like" when describing a user's mid-level fondness of a genre.
+# 7. When rating of an item is lower than or equal to 3.0, you MUST consider that the user does not like this item. Otherwise, when rating is above than or equal to 3.5, it is a high score, showing that the user likes this item.
+
+# For a specific scenario, an example on movie recommendation would be:
+# """},
+# {"role": "assistant", "content": "Sure, I will generate the user's new profile after I see the rating and the items' attribute according to the requirements. "}
+# ], # newprompt，之前测试的效果不太好
+
 #             [
 # {"role": "system", "content": "You are a helpful assistant on movie recommendation. "},
 # {"role": "user", "content": """Now I will give you:
@@ -213,25 +343,32 @@ New User Profile: [list of terms], MUST be in Python List format, each term stri
 
 For a specific scenario, an example on movie recommendation would be:
 """},
+# {"role": "user", "content": """Above is the user profile list given to you. Please be aware that you are given a task of summarizing and distilling the Original User Profile into a little bit shorter New User Profile, based on the User Profile list given to you.
+# You MUST strictly follow the task instructions and give the output in correct format. You are FORBIDDEN to give freestyled recommendations and description summarizations, because they are NOT YOUR TASK.
+# Now we emphasize the instructions of the task to you again:
+# To do this, please follow the steps below:
+# 1. Review the Original Profile of the user, then extract the preferences and dislikes from it. You should review every terms in the Original Profile one after another, from the beginning to the end. The extraction MUST be comprehensive - every term, especially those only mentioned once in the Original Profile, MATTERS. You MUST pay attention to all information mentioned.
+# 2. Give a Thought according to user's preferences and dislikes, summarize and distill the features of the Original User Profile. Your summarization and distillation must be comprehensive, containing all information mentioned in the original user profile. Directly discarding features inside the Original User Profile is STRICTLY PROHIBITED.
+# 3. Generate the New User Profile based on the information derived in the Thought. The total text length of the New User Profile MUST be MORE than half of the Original User Profile, and less than three forth of the Original User Profile, in order to make sure that all the details in Original User Profile can be retained. Moreover, the number of terms in New User Profile should be MORE THAN half, and LESS THAN three forth of the total number of terms in Original User Profile, in order to leave enough space for further generated terms. You should generate New User Profile that is long enough to retain all the information in Original User Profile - within the limits above, it is always better to derive longer New User Profile than shorter ones.
+
+# Important note:
+# 1. Your output should in the format:
+# Thought: Plain text.
+# New User Profile: [list of terms], MUST be in Python List format, each term string should be wrapped with quotation marks and seperated by comma. Be aware that when there is any quotation mark inside the term, please use escape character to avoid the mismatch of quotation marks.
+# 2. Your output should explicitly retain all emotional phrases in each term, which directly reflect the user's preferences and dislikes. It is FORBIDDEN to directly use the name of genres to represent user's fondness by default.
+# 3. You should pay extra attention on the terms which only have tiny differences literally and semantically. It is IMPORTANT to integrate them into one term.
+# 4. When there exist terms with conflicting meanings, e.g. "like comedy" and "not a fan of comedy", you may use some mid-level adverbs to express the user's mid-level interest to neutralize this conflict, e.g. "moderately like comedy", "like comedy to some extent", or "having complicated feeling about comedy".
+# 5. You should MAKE SURE the completeness of the New Item Profile, i.e. every identifiable user feature in Original Profile and Thought MUST BE retained, before and after condensing. The total text length of the New User Profile MUST be MORE than half of the Original User Profile, and the number of terms in New User Profile should be MORE THAN half of the total number of terms in Original User Profile.
+# 6. Your output should not only contain the features user like, but also include features that user do not like, e.g. "not a fan of comedy".
+# 7. Your output should have more detail and comprehensive, be specific and personalized, highlighting detailed and distinguishable feature of the user, and AVOID generating too short New User Profile, or fabricating features that not exist in Original Profile.
+
+# No matter how you can fully understand the user profile list, your output should strictly follow the given format. Otherwise you will be punished.
+# """},
 {"role": "user", "content": """Above is the user profile list given to you. Please be aware that you are given a task of summarizing and distilling the Original User Profile into a little bit shorter New User Profile, based on the User Profile list given to you.
 You MUST strictly follow the task instructions and give the output in correct format. You are FORBIDDEN to give freestyled recommendations and description summarizations, because they are NOT YOUR TASK.
-Now we emphasize the instructions of the task to you again:
-To do this, please follow the steps below:
-1. Review the Original Profile of the user, then extract the preferences and dislikes from it. You should review every terms in the Original Profile one after another, from the beginning to the end. The extraction MUST be comprehensive - every term, especially those only mentioned once in the Original Profile, MATTERS. You MUST pay attention to all information mentioned.
-2. Give a Thought according to user's preferences and dislikes, summarize and distill the features of the Original User Profile. Your summarization and distillation must be comprehensive, containing all information mentioned in the original user profile. Directly discarding features inside the Original User Profile is STRICTLY PROHIBITED.
-3. Generate the New User Profile based on the information derived in the Thought. The total text length of the New User Profile MUST be MORE than half of the Original User Profile, and less than three forth of the Original User Profile, in order to make sure that all the details in Original User Profile can be retained. Moreover, the number of terms in New User Profile should be MORE THAN half, and LESS THAN three forth of the total number of terms in Original User Profile, in order to leave enough space for further generated terms. You should generate New User Profile that is long enough to retain all the information in Original User Profile - within the limits above, it is always better to derive longer New User Profile than shorter ones.
-
-Important note:
-1. Your output should in the format:
+Your output should in the format:
 Thought: Plain text.
 New User Profile: [list of terms], MUST be in Python List format, each term string should be wrapped with quotation marks and seperated by comma. Be aware that when there is any quotation mark inside the term, please use escape character to avoid the mismatch of quotation marks.
-2. Your output should explicitly retain all emotional phrases in each term, which directly reflect the user's preferences and dislikes. It is FORBIDDEN to directly use the name of genres to represent user's fondness by default.
-3. You should pay extra attention on the terms which only have tiny differences literally and semantically. It is IMPORTANT to integrate them into one term.
-4. When there exist terms with conflicting meanings, e.g. "like comedy" and "not a fan of comedy", you may use some mid-level adverbs to express the user's mid-level interest to neutralize this conflict, e.g. "moderately like comedy", "like comedy to some extent", or "having complicated feeling about comedy".
-5. You should MAKE SURE the completeness of the New Item Profile, i.e. every identifiable user feature in Original Profile and Thought MUST BE retained, before and after condensing. The total text length of the New User Profile MUST be MORE than half of the Original User Profile, and the number of terms in New User Profile should be MORE THAN half of the total number of terms in Original User Profile.
-6. Your output should not only contain the features user like, but also include features that user do not like, e.g. "not a fan of comedy".
-7. Your output should have more detail and comprehensive, be specific and personalized, highlighting detailed and distinguishable feature of the user, and AVOID generating too short New User Profile, or fabricating features that not exist in Original Profile.
-
 No matter how you can fully understand the user profile list, your output should strictly follow the given format. Otherwise you will be punished.
 """},
 {"role": "assistant", "content": "Sure, I will try my best to summarize the user's profile to New User Profile."}
@@ -420,7 +557,7 @@ The new descriptions MUST begin with the line "New Item Descriptions:", otherwis
                 ],
                 [
 {"role": "system", "content": "You are a helpful assistant on summarization. "},
-{"role": "user", "content": """Now I will give you the Name, Category and Descriptions of 4 items (possibly less than 4), in the format of "Index\tItem Name\tItem Category\tItem Description", one line for each item. 
+{"role": "user", "content": """Now I will give you the Name, Category and Descriptions of 3 items (possibly less than 3), in the format of "Index\tItem Name\tItem Category\tItem Description", one line for each item. 
 Their descriptions are too long. So, you are considered to condense their descriptions into shorter ones.
 To do this, please follow the steps below:
 1. Review the descriptions of the given items, and extract the main content and features of each item. You need to give a Thought of your extraction process of each item. When doing extraction, you should be comprehensive, DO NOT miss any important features of each item. Also, you should be aware that the given items are different, each of them has its own uniqueness. Therefore, during extraction, you need to highlight the unique characteristics of each item.
@@ -432,18 +569,16 @@ Important note:
 Thought: (MUST be EXACTLY the same as this line)
 1. Item Name 1: Item Description 1
 2. Item Name 2: Item Description 2
-...
-4. Item Name 4: Item Description 4
+3. Item Name 3: Item Description 3
 The New Descriptions: (MUST be EXACTLY the same as this line)
 1. New Item Description 1
 2. New Item Description 2
-...
-4. New Item Description 4
+3. New Item Description 3
 
 The Thought MUST begin with the line "Thought:", and the new descriptions MUST begin with the line "The New Descriptions:", otherwise we cannot identify the descriptions you generated. It is FORBIDDEN to output information other than the format above.
-2. You may be given less than 4 items, in this case, please just condense the descriptions of the items given to you, DO NOT inquire for more items.
+2. You may be given less than 3 items, in this case, please just condense the descriptions of the items given to you, DO NOT inquire for more items.
 3. Your output order of the items should be consistent with the given input, and the "The New Description:" line MUST be outputted.
-4. Each of the New Item Description's length should be LESS than 512 characters. Within this limitation, you may describe the item in more detail."""},
+4. You should describe the item in more words with more detail."""},
                 ],
                 [
 {"role": "system", "content": "You are a helpful assistant on recommendation. "},
@@ -462,25 +597,118 @@ The New Descriptions:
 3. The New Item Description's length should be NO MORE than 512 characters. Within this limitation, you may describe the item in more detail."""}
                 ]
         ]
+#         self.user_example = [
+# """User Original Profile: ["age: 25", "gender: male", "occupation: writer", "prefers movies with strong storytelling", "looks for well-developed characters", "enjoys action movies", "appreciates movies with dramatic elements", "interested in western genre", "enjoys thrilling action movies", "appreciates well-crafted characters", "likes movies with strong storytelling", "interested in movies with dramatic elements", "has a preference for the western genre", "not a fan of weak storytelling", "appreciates well-developed characters", "prefers movies with impactful dramatic elements", "specific about western genre expectations", "not a fan of sci-fi movies", "not interested in weak storytelling in movies", "not a fan of 'Star Trek' franchise"]
+# Item: "Alien 3 (1992)"
+# Item Profile: ["Alien 3 (1992)", "Action", " Horror", " Sci-Fi", " Thriller"]
+# Rating: "1/5"
+
+# Your output:
+# Thought: Based on the user's Original Profile, it is clear that the user has a strong preference for movies with strong storytelling, well-developed characters, and impactful dramatic elements. The user also mentioned an interest in the western genre, thrilling action movies, and an appreciation for well-crafted characters. However, the user explicitly stated that he is not a fan of weak storytelling and sci-fi movies. 
+# The user rated "Alien 3" with a low score of 1. From the item's profile, we can see that "Alien 3" falls into the genres of Action, Horror, Sci-Fi, and Thriller. Since the user enjoys thrilling action movies, these two genres are not the main cause that make the user dislike this movie. It is likely that the user's dislike for weak storytelling and sci-fi movies influenced his low rating for "Alien 3". Additionally, since the user mentioned not being a fan of the "Star Trek" franchise, which is a popular sci-fi series, it is possible that the user's dislike for sci-fi extended to "Alien 3". We can also infer that the user dislike horror movies from the user's dislike for "Alien 3", which falls into the horror genre.
+# New User Profile: ["not a fan of weak storytelling in movies", "not a fan of horror movies"]""",
+
+# """User Original Profile: ["age: 17", "gender: male", "occupation: student", "enjoys action movies", "appreciates fast-paced and thrilling films", "enjoys drama films", "interested in sci-fi movies", "loves action-packed movies", "thrives on fast-paced and thrilling films", "appreciates adventurous plots", "enjoys movies with mystery elements", "not a big fan of comedy films", "thrives on fast-paced and thrilling films", "enjoys fantasy movies", "appreciates adventurous plots in movies", "loves action-packed and thrilling movies", "appreciates sci-fi elements in movies", "enjoys movies with war themes", "appreciates drama films", "enjoys romantic movies", "appreciates slower-paced movies"]
+# Item: "Mars Attacks! (1996)"
+# Item Profile: ["Mars Attacks! (1996)", "Action", " Comedy", " Sci-Fi", " War"]
+# Rating: "3/5"
+
+# Your output:
+# Thought: Based on the given user's Original Profile, it is clear that the user enjoys action, romantic, fantasy, thrilling, drama and sci-fi movies, and movies with adventurous and mystery elements. The user also mentions that he is not a big fan of comedy films and prefers action-packed and fast-paced movies. 
+# The user has rated the movie "Mars Attacks! (1996)" with a rating of 3. The movie's profile includes action, comedy, sci-fi, and war genres. 
+# From this information, since the user enjoys all genres other than comedy, it can be inferred that the user might have given a low rating to "Mars Attacks! (1996)" because it includes the comedy genre, which the user is not a big fan of. The user's preference for fast-paced and action-packed movies might also contribute to the lower rating, as the movie might not have met his expectations in terms of the level of action and pace.
+# New User Profile: ["not a big fan of comedy films", "prefers fast-paced and action-packed movies"]""",
+
+# """User Original Profile: ["age: 21", "gender: male", "occupation: student", "enjoys action-packed films", "appreciates intense and suspenseful movies", "interested in war-related themes", "enjoys comedic elements", "appreciates comedy films", "has a diverse taste in movies", "appreciates emotional and intense dramas", "enjoys well-developed characters", "loves mystery thrillers", "appreciates engaging and thrilling movies", "enjoys well-developed characters in films", "appreciates complex and emotional storylines", "enjoys movies with war-related themes", "enjoys crime films", "appreciates well-developed characters in crime movies", "likes intense and suspenseful dramas", "interested in complex storylines", "enjoys action-packed and intense movies", "appreciates well-developed characters in films", "likes thriller movies", "enjoys drama films", "interested in sci-fi movies", "appreciates films with emotional and intense storylines", "likes movies with complex themes", "interested in exploring the unknown", "appreciates intense and emotional dramas", "appreciates movies with moral complexities", "interested in exploring ethical dilemmas", "enjoys comedy films with intense and suspenseful elements"]
+# Item: "Return of the Jedi (1983)"
+# Item Profile: ["Return of the Jedi (1983)", "Action", " Adventure", " Romance", " Sci-Fi", " War"]
+# Rating: "4/5"
+
+# Your output:
+# Thought: Based on the user's Original Profile, we can see that the user is a 21-year-old male student with a diverse taste in movies. He enjoys action-packed films, intense and suspenseful movies, war-related themes, comedic elements, emotional and intense dramas, well-developed characters, mystery thrillers, engaging and thrilling movies, crime films, intense and suspenseful dramas, complex storylines, thriller movies, drama films, sci-fi movies, movies with complex themes, exploring the unknown, intense and emotional dramas, movies with moral complexities, and exploring ethical dilemmas.
+# The user rated "Return of the Jedi (1983)" with a score of 4. Looking at the item's profile, we can see that it is an action, adventure, romance, sci-fi, and war movie. Considering the user's preferences for action-packed films, war-related themes, and sci-fi movies, it is likely that the user enjoyed these aspects of the movie. The user may have appreciated the well-developed characters and the intense and suspenseful elements present in the film.
+# New User Profile: ["likes action and adventure movies", "appreciates well-developed characters in sci-fi films", "enjoys movies with war-related themes"]""",
+
+# """User Original Profile: ["age: 46", "gender: male", "occupation: librarian", "prefers movies with intricate plots", "appreciates suspenseful elements", "enjoys crime movies", "appreciates thrillers", "likes movies with intricate plots", "dislikes movies with weak plot", "not a fan of movies lacking suspense", "prefers well-developed characters", "not a fan of romantic comedies", "prefers movies with intricate plots and suspenseful elements", "appreciates crime movies", "enjoys action movies", "appreciates mystery movies", "likes thrillers", "appreciates movies that keep him engaged", "enjoys movies that keep him guessing", "not a fan of horror movies", "appreciates well-developed characters", "appreciates comedy-drama genre", "enjoys movies with intricate plots and well-developed characters", "likes movies that keep him engaged and guessing"]
+# Item: "English Patient, The (1996)"
+# Item Profile: ["English Patient, The (1996)", "Drama", " Romance", " War"]
+# Rating: "5/5"
+
+# Your output:
+# Thought: Based on the user's Original Profile, we can see that the user is a 46-year-old male librarian who prefers movies with intricate plots, appreciates suspenseful elements, enjoys action movies, mystery movies, crime movies and comedy-drama genre. The user also appreciates thrillers and movies that keep him engaged and guessing. However, the user dislikes movies with weak plots, movies lacking suspense, and romantic comedies. The user also mentions not being a fan of horror movies.
+# The user gave "English Patient, The (1996)" a rating of 5. This movie is categorized as a Drama, Romance, and War film. Considering the user's preferences for intricate plots, well-developed characters, and engagement, it is likely that the user enjoyed the intricate plot and well-developed characters in "English Patient, The (1996)". The user's appreciation for drama might have contributed to the high rating as well. From the film's genre, it is likely that the user also enjoys romance and war movies, which are the new features of the user inferred from the user's positive experience with this movie, and can led to the inclusion of new preferences in the New User Profile.
+# New User Profile: ["appreciates drama genre", "enjoys romance in movies", "likes war movies", "appreciates movies with intricate plots and well-developed characters"]"""
+# ]
+
+
+#         self.user_example = [
+# """User Original Profile: ["age: 25", "gender: male", "occupation: writer", "prefers movies with strong storytelling", "looks for well-developed characters", "enjoys action movies", "appreciates movies with dramatic elements", "interested in western genre", "enjoys thrilling action movies", "appreciates well-crafted characters", "likes movies with strong storytelling", "interested in movies with dramatic elements", "has a preference for the western genre", "not a fan of weak storytelling", "appreciates well-developed characters", "prefers movies with impactful dramatic elements", "specific about western genre expectations", "not a fan of sci-fi movies", "not interested in weak storytelling in movies", "not a fan of 'Star Trek' franchise"]
+# Item: "Alien 3 (1992)"
+# Item Profile: ["Alien 3 (1992)", "Action", " Horror", " Sci-Fi", " Thriller"]
+# Rating: "1/5"
+# Collaborative Score: -0.1944116950035095
+
+# Your output:
+# Thought: Based on the user's Original Profile, it is clear that the user has a strong preference for movies with strong storytelling, well-developed characters, and impactful dramatic elements. The user also mentioned an interest in the western genre, thrilling action movies, and an appreciation for well-crafted characters. However, the user explicitly stated that he is not a fan of weak storytelling and sci-fi movies. 
+# The user rated "Alien 3" with a low score of 1, and the collaborative score is also a negative number, indicates the user's dislike. From the item's profile, we can see that "Alien 3" falls into the genres of Action, Horror, Sci-Fi, and Thriller. Since the user enjoys thrilling action movies, these two genres are not the main cause that make the user dislike this movie. It is likely that the user's dislike for weak storytelling and sci-fi movies influenced his low rating for "Alien 3". Additionally, since the user mentioned not being a fan of the "Star Trek" franchise, which is a popular sci-fi series, it is possible that the user's dislike for sci-fi extended to "Alien 3". We can also infer that the user dislike horror movies from the user's dislike for "Alien 3", which falls into the horror genre.
+# New User Profile: ["not a fan of weak storytelling in movies", "not a fan of horror movies"]""",
+
+# """User Original Profile: ["age: 17", "gender: male", "occupation: student", "enjoys action movies", "appreciates fast-paced and thrilling films", "enjoys drama films", "interested in sci-fi movies", "loves action-packed movies", "thrives on fast-paced and thrilling films", "appreciates adventurous plots", "enjoys movies with mystery elements", "not a big fan of comedy films", "thrives on fast-paced and thrilling films", "enjoys fantasy movies", "appreciates adventurous plots in movies", "loves action-packed and thrilling movies", "appreciates sci-fi elements in movies", "enjoys movies with war themes", "appreciates drama films", "enjoys romantic movies", "appreciates slower-paced movies"]
+# Item: "Mars Attacks! (1996)"
+# Item Profile: ["Mars Attacks! (1996)", "Action", " Comedy", " Sci-Fi", " War"]
+# Rating: "3/5"
+# Collaborative Score: 0.2163684368133545
+
+# Your output:
+# Thought: Based on the given user's Original Profile, it is clear that the user enjoys action, romantic, fantasy, thrilling, drama and sci-fi movies, and movies with adventurous and mystery elements. The user also mentions that he is not a big fan of comedy films and prefers action-packed and fast-paced movies. 
+# The user has rated the movie "Mars Attacks! (1996)" with a rating of 3. The movie's profile includes action, comedy, sci-fi, and war genres. And the collaborative score is also not very high.
+# From this information, since the user enjoys all genres other than comedy, it can be inferred that the user might have given a low rating to "Mars Attacks! (1996)" because it includes the comedy genre, which the user is not a big fan of. The user's preference for fast-paced and action-packed movies might also contribute to the lower rating, as the movie might not have met his expectations in terms of the level of action and pace.
+# New User Profile: ["not a big fan of comedy films", "prefers fast-paced and action-packed movies"]""",
+
+# """User Original Profile: ["age: 21", "gender: male", "occupation: student", "enjoys action-packed films", "appreciates intense and suspenseful movies", "interested in war-related themes", "enjoys comedic elements", "appreciates comedy films", "has a diverse taste in movies", "appreciates emotional and intense dramas", "enjoys well-developed characters", "loves mystery thrillers", "appreciates engaging and thrilling movies", "enjoys well-developed characters in films", "appreciates complex and emotional storylines", "enjoys movies with war-related themes", "enjoys crime films", "appreciates well-developed characters in crime movies", "likes intense and suspenseful dramas", "interested in complex storylines", "enjoys action-packed and intense movies", "appreciates well-developed characters in films", "likes thriller movies", "enjoys drama films", "interested in sci-fi movies", "appreciates films with emotional and intense storylines", "likes movies with complex themes", "interested in exploring the unknown", "appreciates intense and emotional dramas", "appreciates movies with moral complexities", "interested in exploring ethical dilemmas", "enjoys comedy films with intense and suspenseful elements"]
+# Item: "Return of the Jedi (1983)"
+# Item Profile: ["Return of the Jedi (1983)", "Action", " Adventure", " Romance", " Sci-Fi", " War"]
+# Rating: "4/5"
+# Collaborative Score: 0.7545681638133436
+
+# Your output:
+# Thought: Based on the user's Original Profile, we can see that the user is a 21-year-old male student with a diverse taste in movies. He enjoys action-packed films, intense and suspenseful movies, war-related themes, comedic elements, emotional and intense dramas, well-developed characters, mystery thrillers, engaging and thrilling movies, crime films, intense and suspenseful dramas, complex storylines, thriller movies, drama films, sci-fi movies, movies with complex themes, exploring the unknown, intense and emotional dramas, movies with moral complexities, and exploring ethical dilemmas.
+# The user rated "Return of the Jedi (1983)" with a score of 4, and the collaborative score of the movie is relatively high. Looking at the item's profile, we can see that it is an action, adventure, romance, sci-fi, and war movie. Considering the user's preferences for action-packed films, war-related themes, and sci-fi movies, it is likely that the user enjoyed these aspects of the movie. The user may have appreciated the well-developed characters and the intense and suspenseful elements present in the film.
+# New User Profile: ["likes action and adventure movies", "appreciates well-developed characters in sci-fi films", "enjoys movies with war-related themes"]""",
+
+# """User Original Profile: ["age: 46", "gender: male", "occupation: librarian", "prefers movies with intricate plots", "appreciates suspenseful elements", "enjoys crime movies", "appreciates thrillers", "likes movies with intricate plots", "dislikes movies with weak plot", "not a fan of movies lacking suspense", "prefers well-developed characters", "not a fan of romantic comedies", "prefers movies with intricate plots and suspenseful elements", "appreciates crime movies", "enjoys action movies", "appreciates mystery movies", "likes thrillers", "appreciates movies that keep him engaged", "enjoys movies that keep him guessing", "not a fan of horror movies", "appreciates well-developed characters", "appreciates comedy-drama genre", "enjoys movies with intricate plots and well-developed characters", "likes movies that keep him engaged and guessing"]
+# Item: "English Patient, The (1996)"
+# Item Profile: ["English Patient, The (1996)", "Drama", " Romance", " War"]
+# Rating: "5/5"
+# Collaborative Score: 0.9439505046116095
+
+# Your output:
+# Thought: Based on the user's Original Profile, we can see that the user is a 46-year-old male librarian who prefers movies with intricate plots, appreciates suspenseful elements, enjoys action movies, mystery movies, crime movies and comedy-drama genre. The user also appreciates thrillers and movies that keep him engaged and guessing. However, the user dislikes movies with weak plots, movies lacking suspense, and romantic comedies. The user also mentions not being a fan of horror movies.
+# The user gave "English Patient, The (1996)" a rating of 5, and the movie enjoys a very high collaborative score. This movie is categorized as a Drama, Romance, and War film. Considering the user's preferences for intricate plots, well-developed characters, and engagement, it is likely that the user enjoyed the intricate plot and well-developed characters in "English Patient, The (1996)". The user's appreciation for drama might have contributed to the high rating as well. From the film's genre, it is likely that the user also enjoys romance and war movies, which are the new features of the user inferred from the user's positive experience with this movie, and can led to the inclusion of new preferences in the New User Profile.
+# New User Profile: ["appreciates drama genre", "enjoys romance in movies", "likes war movies", "appreciates movies with intricate plots and well-developed characters"]"""
+# ]
+        
         self.user_example = [
 """User Original Profile: ["age: 25", "gender: male", "occupation: writer", "prefers movies with strong storytelling", "looks for well-developed characters", "enjoys action movies", "appreciates movies with dramatic elements", "interested in western genre", "enjoys thrilling action movies", "appreciates well-crafted characters", "likes movies with strong storytelling", "interested in movies with dramatic elements", "has a preference for the western genre", "not a fan of weak storytelling", "appreciates well-developed characters", "prefers movies with impactful dramatic elements", "specific about western genre expectations", "not a fan of sci-fi movies", "not interested in weak storytelling in movies", "not a fan of 'Star Trek' franchise"]
 Item: "Alien 3 (1992)"
 Item Profile: ["Alien 3 (1992)", "Action", " Horror", " Sci-Fi", " Thriller"]
 Rating: "1/5"
+Collaborative Hedonic Scale: Dislike Very Much
 
 Your output:
 Thought: Based on the user's Original Profile, it is clear that the user has a strong preference for movies with strong storytelling, well-developed characters, and impactful dramatic elements. The user also mentioned an interest in the western genre, thrilling action movies, and an appreciation for well-crafted characters. However, the user explicitly stated that he is not a fan of weak storytelling and sci-fi movies. 
-The user rated "Alien 3" with a low score of 1. From the item's profile, we can see that "Alien 3" falls into the genres of Action, Horror, Sci-Fi, and Thriller. Since the user enjoys thrilling action movies, these two genres are not the main cause that make the user dislike this movie. It is likely that the user's dislike for weak storytelling and sci-fi movies influenced his low rating for "Alien 3". Additionally, since the user mentioned not being a fan of the "Star Trek" franchise, which is a popular sci-fi series, it is possible that the user's dislike for sci-fi extended to "Alien 3". We can also infer that the user dislike horror movies from the user's dislike for "Alien 3", which falls into the horror genre.
+The user rated "Alien 3" with a low score of 1, and the collaborative hedonic scale also indicates user's dislike. From the item's profile, we can see that "Alien 3" falls into the genres of Action, Horror, Sci-Fi, and Thriller. Since the user enjoys thrilling action movies, these two genres are not the main cause that make the user dislike this movie. It is likely that the user's dislike for weak storytelling and sci-fi movies influenced his low rating for "Alien 3". Additionally, since the user mentioned not being a fan of the "Star Trek" franchise, which is a popular sci-fi series, it is possible that the user's dislike for sci-fi extended to "Alien 3". We can also infer that the user dislike horror movies from the user's dislike for "Alien 3", which falls into the horror genre.
 New User Profile: ["not a fan of weak storytelling in movies", "not a fan of horror movies"]""",
 
 """User Original Profile: ["age: 17", "gender: male", "occupation: student", "enjoys action movies", "appreciates fast-paced and thrilling films", "enjoys drama films", "interested in sci-fi movies", "loves action-packed movies", "thrives on fast-paced and thrilling films", "appreciates adventurous plots", "enjoys movies with mystery elements", "not a big fan of comedy films", "thrives on fast-paced and thrilling films", "enjoys fantasy movies", "appreciates adventurous plots in movies", "loves action-packed and thrilling movies", "appreciates sci-fi elements in movies", "enjoys movies with war themes", "appreciates drama films", "enjoys romantic movies", "appreciates slower-paced movies"]
 Item: "Mars Attacks! (1996)"
 Item Profile: ["Mars Attacks! (1996)", "Action", " Comedy", " Sci-Fi", " War"]
 Rating: "3/5"
+Collaborative Hedonic Scale: Neutral Towards Like
 
 Your output:
 Thought: Based on the given user's Original Profile, it is clear that the user enjoys action, romantic, fantasy, thrilling, drama and sci-fi movies, and movies with adventurous and mystery elements. The user also mentions that he is not a big fan of comedy films and prefers action-packed and fast-paced movies. 
-The user has rated the movie "Mars Attacks! (1996)" with a rating of 3. The movie's profile includes action, comedy, sci-fi, and war genres. 
+The user has rated the movie "Mars Attacks! (1996)" with a rating of 3. The movie's profile includes action, comedy, sci-fi, and war genres. And the collaborative hedonic scale is also not very positive.
 From this information, since the user enjoys all genres other than comedy, it can be inferred that the user might have given a low rating to "Mars Attacks! (1996)" because it includes the comedy genre, which the user is not a big fan of. The user's preference for fast-paced and action-packed movies might also contribute to the lower rating, as the movie might not have met his expectations in terms of the level of action and pace.
 New User Profile: ["not a big fan of comedy films", "prefers fast-paced and action-packed movies"]""",
 
@@ -488,22 +716,26 @@ New User Profile: ["not a big fan of comedy films", "prefers fast-paced and acti
 Item: "Return of the Jedi (1983)"
 Item Profile: ["Return of the Jedi (1983)", "Action", " Adventure", " Romance", " Sci-Fi", " War"]
 Rating: "4/5"
+Collaborative Hedonic Scale: Like Very Much
 
 Your output:
 Thought: Based on the user's Original Profile, we can see that the user is a 21-year-old male student with a diverse taste in movies. He enjoys action-packed films, intense and suspenseful movies, war-related themes, comedic elements, emotional and intense dramas, well-developed characters, mystery thrillers, engaging and thrilling movies, crime films, intense and suspenseful dramas, complex storylines, thriller movies, drama films, sci-fi movies, movies with complex themes, exploring the unknown, intense and emotional dramas, movies with moral complexities, and exploring ethical dilemmas.
-The user rated "Return of the Jedi (1983)" with a score of 4. Looking at the item's profile, we can see that it is an action, adventure, romance, sci-fi, and war movie. Considering the user's preferences for action-packed films, war-related themes, and sci-fi movies, it is likely that the user enjoyed these aspects of the movie. The user may have appreciated the well-developed characters and the intense and suspenseful elements present in the film.
+The user rated "Return of the Jedi (1983)" with a score of 4, and the collaborative hedonic scale of the movie is positive. Looking at the item's profile, we can see that it is an action, adventure, romance, sci-fi, and war movie. Considering the user's preferences for action-packed films, war-related themes, and sci-fi movies, it is likely that the user enjoyed these aspects of the movie. The user may have appreciated the well-developed characters and the intense and suspenseful elements present in the film.
 New User Profile: ["likes action and adventure movies", "appreciates well-developed characters in sci-fi films", "enjoys movies with war-related themes"]""",
 
 """User Original Profile: ["age: 46", "gender: male", "occupation: librarian", "prefers movies with intricate plots", "appreciates suspenseful elements", "enjoys crime movies", "appreciates thrillers", "likes movies with intricate plots", "dislikes movies with weak plot", "not a fan of movies lacking suspense", "prefers well-developed characters", "not a fan of romantic comedies", "prefers movies with intricate plots and suspenseful elements", "appreciates crime movies", "enjoys action movies", "appreciates mystery movies", "likes thrillers", "appreciates movies that keep him engaged", "enjoys movies that keep him guessing", "not a fan of horror movies", "appreciates well-developed characters", "appreciates comedy-drama genre", "enjoys movies with intricate plots and well-developed characters", "likes movies that keep him engaged and guessing"]
 Item: "English Patient, The (1996)"
 Item Profile: ["English Patient, The (1996)", "Drama", " Romance", " War"]
 Rating: "5/5"
+Collaborative Hedonic Scale: Like Very Much
 
 Your output:
 Thought: Based on the user's Original Profile, we can see that the user is a 46-year-old male librarian who prefers movies with intricate plots, appreciates suspenseful elements, enjoys action movies, mystery movies, crime movies and comedy-drama genre. The user also appreciates thrillers and movies that keep him engaged and guessing. However, the user dislikes movies with weak plots, movies lacking suspense, and romantic comedies. The user also mentions not being a fan of horror movies.
-The user gave "English Patient, The (1996)" a rating of 5. This movie is categorized as a Drama, Romance, and War film. Considering the user's preferences for intricate plots, well-developed characters, and engagement, it is likely that the user enjoyed the intricate plot and well-developed characters in "English Patient, The (1996)". The user's appreciation for drama might have contributed to the high rating as well. From the film's genre, it is likely that the user also enjoys romance and war movies, which are the new features of the user inferred from the user's positive experience with this movie, and can led to the inclusion of new preferences in the New User Profile.
+The user gave "English Patient, The (1996)" a rating of 5, and the movie enjoys a very positive collaborative hedonic scale. This movie is categorized as a Drama, Romance, and War film. Considering the user's preferences for intricate plots, well-developed characters, and engagement, it is likely that the user enjoyed the intricate plot and well-developed characters in "English Patient, The (1996)". The user's appreciation for drama might have contributed to the high rating as well. From the film's genre, it is likely that the user also enjoys romance and war movies, which are the new features of the user inferred from the user's positive experience with this movie, and can led to the inclusion of new preferences in the New User Profile.
 New User Profile: ["appreciates drama genre", "enjoys romance in movies", "likes war movies", "appreciates movies with intricate plots and well-developed characters"]"""
 ]
+        
+        
         self.condense_example = [
 """User Original Profile: ["21", "male", "student", "enjoys thrilling plots", "likes dark and mysterious atmospheres", "appreciates dramatic elements", "not a fan of romance-heavy movies", "not a fan of sci-fi and war movies", "leans towards action films and crime movies", "appreciates comedic elements", "enjoys thought-provoking films", "has a particular interest in war movies, sci-fi movies, and movies with dark and mysterious atmospheres", "enjoys action and adventure movies", "appreciates war elements in movies", "not a big fan of romance-heavy movies", "appreciates intense and thought-provoking dramas", "interested in movies with themes of injustice and conflict", "appreciates comedic elements", "likes thrilling plots", "enjoys thrilling plots", "prefers movies with darker and more mysterious atmospheres", "not a fan of romance in movies", "enjoys horror movies", "appreciates intense and eerie atmospheres", "likes suspenseful and thrilling plots", "appreciates intense and dramatic performances", "appreciates thrilling plots", "appreciates horror movies", "enjoys intense and eerie atmospheres", "enjoys comedy films", "appreciates comedic performances", "enjoys movies with themes of injustice and conflict", "likes intense and dramatic performances"]
 
@@ -622,5 +854,54 @@ Remember to take into consideration the relevance of the items in the current se
 Your output should in the format:
 New User Profile: [list of terms], MUST be in Python List format, each term string reflects one user preference.
 """}
+                ]
+        ]
+        self.summarize_potential = [
+                [
+{"role": "system", "content": "You are a helpful assistant on recommendation. "},
+{"role": "user", "content": """Now I will give you the categories and descriptions of several items that a user potentially like. Please summarize the user's potential interest based on the information given to you.
+
+To do this, please follow the steps below:
+1. Analyze the category and description texts of each item, try to summarize each item's main categories and features.
+2. Give a Thought based on the previous analyses, try to figure out the common features (having high frequency of occurrence) of all given items, as well as the specific features (only exist in one or a few items) of them, try to analyze what kind of items the user potentially like. You may also include your analyses about the items in the Thought.
+3. Generate a description text, containing the summarized textual descriptions about the categories and descriptions of items user may like as the user's potential preferences.
+
+Important note:
+1. Your output should in the format:
+Thought: Plain text, including the summarization of each item's main categories, as well as the analyses of the common and specific features of items, and the inference of user potential preferences.
+Potential interest: Plain text, the conclusion of summarization, including the final inferred and summarized user's potential interest based on the given information.
+2. You should analyze and summarize all given items thoroughly, each one of them MUST be examined, and pay attention to all categories and features of them."""},
+# {"role": "assistant", "content": "Sure, I will try my best to summarize the user's potential interest, according to the requirements."},
+{"role": "user", "content": """Above are the categories and descriptions of several potentially liked items given to you. Please be aware that you are given a task of summarizing the user's potential interest based on the information given to you.
+You MUST strictly follow the task instructions and give the output in correct format. You are FORBIDDEN to give freestyled recommendations and description summarizations, because they are NOT YOUR TASK.
+Your output should in the format:
+Thought: Plain text, including the summarization of each item's main categories, as well as the analyses of the common and specific features of items, and the inference of user potential preferences.
+Potential interest: Plain text, the conclusion of summarization, including the final inferred and summarized user's potential interest based on the given information.
+"""},
+# {"role": "assistant", "content": "Sure, I will try my best to summarize the user's profile to New User Profile."}
+                ]
+        ]
+        self.add_potential = [
+                [
+{"role": "user", "content": """Now I will give you:
+1. The User Profile, in the format of Python List. This is the profile you generated previously based on the user's interaction history, revealing user's real interest.
+2. Some Potential Preference Analyses about this user. These analyses are concluded from the full evaluation of the traditional recommender systems, based on some items that the user has NOT interacted with, however BEST matches the user's interests among all non-interacted items. Therefore, the analyses represent user's POTENTIAL interests, which are also very important for accurate recommendation, and should be treated equally important with the user profile.
+Your task is to generate a New User Profile, combining the User Profile and the Potential Preference Analyses about the user together, to introduce user's potential interest into the user profile.
+
+To do this, please follow the steps below:
+1. Review the User Profile list and the Potential Preference Analyses thoroughly and comprehensively. You MUST grasp all information in both parts.
+2. Give a Thought based on your review about the user's preference, containing your analyses about the user's real preference in the user profile and the user's potential interest in the preference analyses.
+3. Generate a New User Profile based on your Thought about the user, adding the terms summarized from the preference analyses into the user profile.
+
+Important note:
+1. Your output should in the format:
+Thought: Plain text, including your analyses about the user's profile and the user's preference analyses, MUST contain both thought on user's real interests and user's potential interests.
+New User Profile: [list of terms], MUST be in Python List format, each term string should be wrapped with quotation marks and seperated by comma. Be aware that when there is any quotation mark inside the term, please use escape character to avoid the mismatch of quotation marks.
+2. In principle, your generated New User Profile should remain ALL information in the user profile unchanged, and only add the newly summarized terms from the preference analyses into the user profile. Pay extra attention on the preferences that does not exist in previous user profile, you MUST add them into the New User Profile.
+3. When there exist conflicting terms that representing opposite semantic meanings in User Profile and Potential Preference Analyses (e.g. likes comedy & not a fan of comedy), you should mainly focus on the given User Profile.
+4. You MUST treat user's potential interest (i.e. preference analyses) equally important as the real interest, and generate as much terms from the user's potential interest as you can, but not exceed the length of the current profile list, in the New User Profile.
+"""},
+{"role": "assistant", "content": "Sure, I will try my best to generate the user profile, according to the requirements."},
+
                 ]
         ]
